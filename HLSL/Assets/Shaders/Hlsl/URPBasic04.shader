@@ -61,7 +61,7 @@ Shader "URPTraining/URPBasic04"
             struct VertexOutput
             {
                 float4 vertex : SV_POSITION;
-                float2 uv : TEXCOORD0;
+                float2 uv1 : TEXCOORD0;
             };
 
             // Color값은 half로 설정함
@@ -79,14 +79,14 @@ Shader "URPTraining/URPBasic04"
             {
                 VertexOutput o;
                 o.vertex = TransformObjectToHClip(v.vertex.xyz);
-                o.uv = v.uv.xy * _MainTex_ST.xy + _MainTex_ST.zw;
+                o.uv1 = v.uv.xy * _MainTex_ST.xy + _MainTex_ST.zw;
                 return o;
             }
 
             // 픽셀 셰이더(Pixel shader)
             half4 frag(VertexOutput i) : SV_Target
             {
-                half4 color = _MainTex.Sample(sampler_MainTex, i.uv);
+                half4 color = _MainTex.Sample(sampler_MainTex, i.uv1);
                 color.rgb *= _TintColor * _Intensity;
                 color.a = color.a * _AlphaCut;
                 

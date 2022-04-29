@@ -7,8 +7,8 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: URPBasic08
-  m_Shader: {fileID: 4800000, guid: a119315ad831edc49ba6f24d7eae0499, type: 3}
+  m_Name: URPBasic12
+  m_Shader: {fileID: 4800000, guid: 0241d4d61a72f874bb999c9da010f9ac, type: 3}
   m_ValidKeywords: []
   m_InvalidKeywords: []
   m_LightmapFlags: 4
@@ -21,18 +21,12 @@ Material:
     serializedVersion: 3
     m_TexEnvs:
     - _MainTex:
-        m_Texture: {fileID: 2800000, guid: e7625925630595d4e923bec86f6f0831, type: 3}
+        m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
-    - _AlphaCut: 0.5
-    - _Cull: 0
-    - _DstBlend: 6
-    - _Intensity: 10
-    - _SrcBlend: 4
-    - _ZTest: 3
-    - _ZWrite: 0
+    - _Intensity: 0.5
     m_Colors:
     - _TintColor: {r: 1, g: 1, b: 1, a: 1}
   m_BuildTextureStacks: []

@@ -1,26 +1,23 @@
-Shader "URPTraining/URPBasic01"
+Shader "URPTraining/URPBasic11"
 {
     Properties
     {
-        _TintColor("Color", color) = (1,1,1,1)
-        _Intensity("Range Sample", Range(0, 1)) = 0.5
-        _MainTex("RGB(A)", 2D) = "white" {}
+        _MainTex ("RGB", 2D) = "white" {}
+        _MainTex02 ("RGB02", 2D) = "white" {}
+        _MaskTex("Mask Tex", 2D) = "white" {}
     }
     SubShader
     {
-        // 태그 선언 안하면 기본으로 설정
         Tags 
         {
+            // Redner type과 Redner Queue를 여기서 결정합니다.
             "RenderPipeline" = "UniversalPipeline"
-            "RenderType"="Opaque"
-            "Queue"="Geometry"
+            "RenderType"="Opaque" 
+            "Queue" = "Geometry"
         }
 
         Pass
         {
-            Name "Universal Forward"
-            Tags { "LightMode" = "UniversalForward"}
-
             HLSLPROGRAM
 
             #pragma prefer_hlslcc gles
@@ -35,37 +32,44 @@ Shader "URPTraining/URPBasic01"
             struct VertexInput
             {
                 float4 vertex : POSITION;
-                float2 uv : TEXCOORD0;
+                // UV1번을 사용하는 경우
+                float2 uv1 : TEXCOORD0;
+                // UV2번을 사용하는 경우
+                float2 uv2 : TEXCOORD1;
             };
-
+            
             // 버텍스 셰이더에서 픽셀 셰이더로 전달할 정보를 선언합니다.
-            // 보간기 : Vertxt Shader에서 Pixcel Shader로 이동할 때 
+            // 보간기 : Vertxt Shader에서 Pixcel Shader로 이동할 때
+            // 보간기의 숫자는
+            // 
             struct VertexOutput
             {
                 float4 vertex : SV_POSITION;
                 float2 uv1 : TEXCOORD0;
+                float2 uv2 : TEXCOORD1;
             };
-
-            float _Intensity;
-            half4 _TintColor;
-            sampler2D _MainTex;
-            float4 _MainTex_ST;
+            float4 _MainTex_ST, _MainTex02_ST;
+            Texture2D _MainTex, _MainTex02, _MaskTex;
+            SamplerState sampler_MainTex;
 
             // 버텍스 셰이더
             VertexOutput vert(VertexInput v)
             {
                 VertexOutput o;
                 o.vertex = TransformObjectToHClip(v.vertex.xyz);
-                o.uv1 = v.uv.xy;
+                o.uv1 = v.uv1.xy * _MainTex_ST.xy + _MainTex_ST.zw;
+                o.uv2 = v.uv1.xy * _MainTex02_ST.xy + _MainTex02_ST.zw;
                 return o;
             }
 
-            // 픽셀 셰이더
+            // 프레그넌트 셰이더
             half4 frag(VertexOutput i) : SV_Target
             {
-                float2 uv = i.uv1.xy * _MainTex_ST.xy + _MainTex_ST.zw;
-                float4 color = tex2D(_MainTex, uv) * _TintColor * _Intensity;
+                half4 tex01 = _MainTex.Sample(sampler_MainTex, i.uv1);
+                half4 tex02 = _MainTex02.Sample(sampler_MainTex, i.uv1);
 
+                half4 mask = _MaskTex.Sample(sampler_MainTex, i.uv1);
+                half4 color = lerp(tex01, tex02, mask.r);
                 return color;
             }
             ENDHLSL

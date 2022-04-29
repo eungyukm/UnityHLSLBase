@@ -1,4 +1,4 @@
-Shader "URPTraining/URPBasic06"
+Shader "URPTraining/URPBasic09"
 {
     Properties
     {
@@ -7,11 +7,16 @@ Shader "URPTraining/URPBasic06"
         _AlphaCut("AlphaCut", Range(0,1)) = 0.5
         _Intensity("Intensity", Range(0,10)) = 1
         
+        _Factor("Factor", int) = 0
+        _Units("Units", int) = 0
+        
         // Src(Source)는 계산된 컬러를 말하고 Dst(Destination)은 이미 화면에 표시된 컬러를 말합니다.
         // Blend operation 타입이다.
         [Enum(UnityEngine.Rendering.BlendMode)] _SrcBlend("Src Blend", Float) = 1
         [Enum(UnityEngine.Rendering.BlendMode)] _DstBlend("Dst Blend", Float) = 0
         [Enum(UnityEngine.Rendering.CullMode)] _Cull("Cull Mode", Float) = 1
+        [Enum(Off, 0, On, 1)] _ZWrite("ZWrite", Float) = 0
+        [Enum(UnityEngine.Rendering.CompareFunction)] _ZTest("ZTest", Float) = 0
     }
     SubShader
     {
@@ -33,7 +38,9 @@ Shader "URPTraining/URPBasic06"
         {
             Blend [_SrcBlend][_DstBlend]
             Cull [_Cull]
-            Zwrite [_Zwrite]
+            Zwrite [_ZWrite]
+            ZTest [_ZTest]
+            Offset [_Factor],[_Units]
             
             Name "Universal Forward"
             Tags { "LigthMode" = "UniversalForward" }
@@ -65,7 +72,7 @@ Shader "URPTraining/URPBasic06"
             struct VertexOutput
             {
                 float4 vertex : SV_POSITION;
-                float2 uv1 : TEXCOORD0;
+                float2 uv : TEXCOORD0;
             };
 
             // Color값은 half로 설정함
@@ -83,14 +90,14 @@ Shader "URPTraining/URPBasic06"
             {
                 VertexOutput o;
                 o.vertex = TransformObjectToHClip(v.vertex.xyz);
-                o.uv1 = v.uv.xy * _MainTex_ST.xy + _MainTex_ST.zw;
+                o.uv = v.uv.xy * _MainTex_ST.xy + _MainTex_ST.zw;
                 return o;
             }
 
             // 픽셀 셰이더(Pixel shader)
             half4 frag(VertexOutput i) : SV_Target
             {
-                half4 color = _MainTex.Sample(sampler_MainTex, i.uv1);
+                half4 color = _MainTex.Sample(sampler_MainTex, i.uv);
                 color.rgb *= _TintColor * _Intensity;
                 color.a = color.a * _AlphaCut;
                 
